@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext", // Use CommonJS module system
+    "target": "es6", // Target a compatible ECMAScript version
+    "esModuleInterop": true, // Enables interoperability between CommonJS and ES modules
+    "strict": true, // Optional: Enables all strict type-checking options
+    "skipLibCheck": true, // Optional: Skip type checking of declaration files for faster builds
+    "typeRoots": ["./types", "./node_modules/@types"]
+  },
+  "include": ["/**/*"], // Adjust based on your folder structure
+  "exclude": ["node_modules"] // Exclude node_modules
+}
