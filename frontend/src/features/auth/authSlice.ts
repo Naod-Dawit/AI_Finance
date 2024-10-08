@@ -9,8 +9,7 @@ interface AuthState {
   token: string | null;
   loading: boolean;
   error: string | null;
-  profileUpdated: boolean,
-
+  profileUpdated: boolean;
 }
 
 const initialState: AuthState = {
@@ -19,14 +18,23 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   profileUpdated: false,
-
 };
 
 // Async actions for signup and signin
+
+
+export interface ProfileDetails {
+  name: string;
+  amount: string;
+  creditcard: string;
+  monthlyIncome: string;
+  goal: string;
+}
+
 export const signup = createAsyncThunk(
   "auth/signup",
   async (
-    userData: { username: string; email: string; password: string },
+    userData: { email: string; password: string },
     { rejectWithValue }
   ) => {
     try {
@@ -38,16 +46,6 @@ export const signup = createAsyncThunk(
     }
   }
 );
-
-export interface ProfileDetails {
-  name:string,
-  amount: string;
-  creditcard: string;
-  monthlyIncome:string
-  goal:string
-
-}
-
 export const signin = createAsyncThunk(
   "auth/signin",
   async (
@@ -67,7 +65,19 @@ export const profile = createAsyncThunk(
   "auth/profile",
   async (details: ProfileDetails, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/profile`, details);
+      const token = localStorage.getItem("token");
+      console.log(token);
+      
+      
+      if (!token) {
+        throw new Error("No token available");
+      }
+
+      const response = await axios.post(`${API_URL}/profile`, details, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (err: any) {
       if (err.response && err.response.data) {
@@ -122,7 +132,7 @@ const authSlice = createSlice({
       })
       .addCase(profile.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = { ...state.user, ...action.payload }; // Merge updated profile data
+        state.user = { ...state.user, ...action.payload }; 
         state.profileUpdated = true;
       })
       .addCase(profile.rejected, (state, action) => {

@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 dotenv.config();
 
-export const signin = async (req: Request, res: Response,next:NextFunction):Promise<void> => {
+ const signin = async (req: Request, res: Response,next:NextFunction):Promise<void> => {
   const { email, password } = req.body;
 
   try {
@@ -19,7 +19,6 @@ export const signin = async (req: Request, res: Response,next:NextFunction):Prom
     }
     const isPasswordValid = bcrypt.compareSync(password, user.password);
     if (!isPasswordValid) {
-      console.log("Password does not match");
        res
         .status(400)
         .json({ message: "Invalid email or password. Please try again." });
@@ -44,3 +43,5 @@ export const signin = async (req: Request, res: Response,next:NextFunction):Prom
     return;
   }
 };
+
+export default signin

@@ -94,7 +94,7 @@ export default function Profile() {
                 htmlFor="amount"
                 className="block text-sm font-medium text-gray-700"
               >
-                Amount:
+                Bank Balance:
               </label>
               <Field
                 name="amount"

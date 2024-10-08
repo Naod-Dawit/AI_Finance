@@ -20,7 +20,8 @@ export const updateProfile = async (
   const { name, monthlyIncome, amount, creditcard, goal } = req.body;
 
   try {
-    const existingUser = await User.findById(user);
+    const existingUser = await User.findById(user.id);
+
 
     if (!existingUser) {
       res.status(404).json({ message: "User not found" });

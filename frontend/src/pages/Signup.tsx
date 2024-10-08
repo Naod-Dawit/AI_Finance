@@ -9,7 +9,6 @@ import { useNavigate, Link } from "react-router-dom";
 const SignupSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
   password: Yup.string().min(6, "Too Short!").required("Required"),
-  username: Yup.string().min(3, "Too short").required("Required"),
 });
 
 export default function Signup() {
@@ -20,7 +19,6 @@ export default function Signup() {
   const handleSubmit = (values: {
     email: string;
     password: string;
-    username: string;
   }) => {
     dispatch(signup(values) as any).then(() => navigate("/profile"));
   };
@@ -34,31 +32,13 @@ export default function Signup() {
 
       <div className="max-w-md mx-auto mt-6 p-6 bg-white rounded-lg shadow-lg">
         <Formik
-          initialValues={{ email: "", password: "", username: "" }}
+          initialValues={{ email: "", password: "" }}
           validationSchema={SignupSchema}
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
             <Form>
-              <div className="mb-4">
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Username:
-                </label>
-                <Field
-                  name="username"
-                  type="text"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 p-2"
-                />
-                <ErrorMessage
-                  name="username"
-                  component="div"
-                  className="text-red-600 text-sm mt-1"
-                />
-              </div>
-
+    
               <div className="mb-4">
                 <label
                   htmlFor="email"

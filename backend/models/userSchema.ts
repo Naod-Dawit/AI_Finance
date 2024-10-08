@@ -12,38 +12,37 @@ interface IUser extends Document {
   creditcard: number;
   goal: string;
 }
-const userSchema: Schema = new Schema({
-  username: {
-    type: String,
-    unique: true,
-    required: true,
-  },
+
+const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    lowercase: true,
     unique: true,
   },
-  password: { type: String, required: true },
-
+  password: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
-    unique: true,
-    required: true,
+    default: "", // Make name optional by setting a default value
   },
   monthlyIncome: {
     type: Number,
-    required: true,
+    default: 0,
   },
   amount: {
     type: Number,
-    required: true,
+    default: 0,
   },
   creditcard: {
     type: Number,
-    unique: true,
+    default: 0,
   },
-  goal: { type: String },
+  goal: {
+    type: String,
+    default: "",
+  },
 });
 userSchema.pre<IUser>(
   "save",
