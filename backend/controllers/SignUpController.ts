@@ -16,15 +16,16 @@ const signup = async (req: Request, res: Response): Promise<any> => {
 
     const newUser = new User({ email, password });
     await newUser.save();
-
-    const secret = process.env.ACCESS_TOKEN_SECRET;
-    if (!secret) {
-      return res.status(500).json({ message: "Internal server error" });
+    const baseSecret = process.env.ACCESS_TOKEN_SECRET;
+    if (!baseSecret) {
+      throw new Error(
+        "ACCESS_TOKEN_SECRET is not defined in environment variables"
+      );
     }
 
-    const token = jwt.sign({ id: newUser._id, email: newUser.email }, secret, {
-      expiresIn: "1h",
-    });
+    const secret = baseSecret + newUser._id;
+
+    const token = jwt.sign({ id: newUser._id, email: newUser.email }, secret);
     res.status(201).json({ user: newUser, token });
   } catch (err) {
     console.error(err);

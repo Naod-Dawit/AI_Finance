@@ -2,9 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { ConnectDb } from "./utils/db";
 import cors from "cors";
-import Signuprouter from "./routes/signup";
-import SigninRouter from "./routes/signin";
-import Profilerouter from "./routes/profile";
+import UserRoutes from './routes/UserRoutes'
 dotenv.config();
 
 const app = express();
@@ -20,10 +18,7 @@ ConnectDb();
 // Routes
 
 
-
-app.use(Signuprouter);
-app.use(SigninRouter);
-app.use(Profilerouter);
+app.use('/api',UserRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server is running at ${PORT}`);

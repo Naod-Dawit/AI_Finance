@@ -108,25 +108,7 @@ export default function Profile() {
               />
             </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="creditcard"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Credit Card:
-              </label>
-              <Field
-                name="creditcard"
-                type="text"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 p-2"
-              />
-              <ErrorMessage
-                name="creditcard"
-                component="div"
-                className="text-red-600 text-sm mt-1"
-              />
-            </div>
-
+            
             <div className="mb-4">
               <label
                 htmlFor="goal"

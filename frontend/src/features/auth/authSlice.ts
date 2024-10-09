@@ -22,7 +22,6 @@ const initialState: AuthState = {
 
 // Async actions for signup and signin
 
-
 export interface ProfileDetails {
   name: string;
   amount: string;
@@ -66,14 +65,12 @@ export const profile = createAsyncThunk(
   async (details: ProfileDetails, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      console.log(token);
-      
-      
+
       if (!token) {
         throw new Error("No token available");
       }
 
-      const response = await axios.post(`${API_URL}/profile`, details, {
+      const response = await axios.put(`${API_URL}/profile`, details, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -87,6 +84,27 @@ export const profile = createAsyncThunk(
     }
   }
 );
+
+export const fetchDetails = createAsyncThunk("auth/details", async () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("No token available");
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/profile`, {
+      headers: {
+        Authorization: `Bearer ${token} `,
+      },
+    });
+    return response.data;
+  } catch (err :any) {
+    console.error(err);
+    throw new Error(err.response?.data?.message || "Failed to fetch details");
+
+  }
+});
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -132,13 +150,23 @@ const authSlice = createSlice({
       })
       .addCase(profile.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = { ...state.user, ...action.payload }; 
+        state.user = { ...state.user, ...action.payload };
         state.profileUpdated = true;
       })
       .addCase(profile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.profileUpdated = false;
+      })
+      .addCase(fetchDetails.fulfilled, (state, action) => {
+        (state.loading = false), (state.user = action.payload as string);
+      })
+      .addCase(fetchDetails.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(fetchDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
