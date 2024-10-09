@@ -99,10 +99,9 @@ export const fetchDetails = createAsyncThunk("auth/details", async () => {
       },
     });
     return response.data;
-  } catch (err :any) {
+  } catch (err: any) {
     console.error(err);
     throw new Error(err.response?.data?.message || "Failed to fetch details");
-
   }
 });
 const authSlice = createSlice({

@@ -14,7 +14,7 @@ const SignupSchema = Yup.object().shape({
 export default function Signup() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { error, loading } = useSelector((state: RootState) => state.auth);
+  const { error, loading } = useSelector((state: RootState) => state.reducers.auth);
 
   const handleSubmit = (values: {
     email: string;
@@ -35,6 +35,7 @@ export default function Signup() {
           initialValues={{ email: "", password: "" }}
           validationSchema={SignupSchema}
           onSubmit={handleSubmit}
+
         >
           {({ isSubmitting }) => (
             <Form>

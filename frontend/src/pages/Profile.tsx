@@ -18,7 +18,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { loading, error, profileUpdated } = useSelector(
-    (state: RootState) => state.auth
+    (state: RootState) => state.reducers.auth
   );
 
   const [customGoal, setCustomGoal] = useState(false);

@@ -1,11 +1,16 @@
 // src/store/store.ts
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
+import expenseReducer from "../features/auth/expensesSlice";
 import { useDispatch } from "react-redux";
 
+const reducers = combineReducers({
+  auth: authReducer,
+  expenses: expenseReducer,
+});
 const store = configureStore({
   reducer: {
-    auth: authReducer,
+    reducers,
   },
 });
 
