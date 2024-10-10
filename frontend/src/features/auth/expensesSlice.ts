@@ -3,7 +3,7 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000/api";
 
-interface CustomExpense {
+export interface CustomExpense {
   id: string;
   name: string;
   amount: number;
@@ -12,7 +12,7 @@ interface CustomExpense {
 export interface ExpenseDetails {
   rent: number;
   car_Payment: number;
-  savings: number;
+  Monthly_saving: number;
   food: number;
   others: number;
   customExpenses: CustomExpense[];
@@ -36,12 +36,13 @@ export const initialState: AuthState = {
   expenses: {
     rent: 0,
     car_Payment: 0,
-    savings: 0,
+    Monthly_saving: 0,
     food: 0,
     others: 0,
     customExpenses: [],
   },
 };
+
 
 export const updateExpenses = createAsyncThunk(
   "expenses/update",

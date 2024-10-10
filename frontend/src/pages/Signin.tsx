@@ -14,7 +14,7 @@ const SigninSchema = Yup.object().shape({
 export default function Signin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { error } = useSelector((state: RootState) => state.auth);
+  const { error } = useSelector((state: RootState) => state.reducers.auth);
 
   const handleSubmit = (values: { email: string; password: string }) => {
     dispatch(signin(values) as any).then(() => navigate('/'));

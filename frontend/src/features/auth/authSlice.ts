@@ -2,7 +2,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_URL
+
 
 interface AuthState {
   user: any;
@@ -25,7 +26,6 @@ const initialState: AuthState = {
 export interface ProfileDetails {
   name: string;
   amount: string;
-  creditcard: string;
   monthlyIncome: string;
   goal: string;
 }

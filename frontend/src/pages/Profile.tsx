@@ -8,12 +8,10 @@ import { useNavigate } from "react-router-dom";
 
 const ProfileSchema = Yup.object().shape({
   amount: Yup.string().required("Amount is required"),
-  creditcard: Yup.string().required("Credit card is required"),
   goal: Yup.string().required("Goal is required"),
   name: Yup.string().required("Name is required"),
   monthlyIncome: Yup.string().required("Monthly income is required"),
 });
-
 export default function Profile() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -29,7 +27,7 @@ export default function Profile() {
   ) => {
     dispatch(profile(values) as any).then(() => {
       setSubmitting(false);
-      navigate("/");
+      navigate("/expenses");
     });
   };
 
@@ -41,7 +39,6 @@ export default function Profile() {
       <Formik
         initialValues={{
           amount: "",
-          creditcard: "",
           name: "",
           monthlyIncome: "",
           goal: "",
@@ -163,7 +160,7 @@ export default function Profile() {
 
             <button
               type="submit"
-              disabled={isSubmitting || loading}
+              disabled={isSubmitting }
               className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md shadow hover:bg-blue-500 transition duration-200"
             >
               {loading ? "Updating..." : "Update Profile"}
