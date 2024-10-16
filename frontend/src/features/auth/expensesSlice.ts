@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_URL;
 
 export interface CustomExpense {
   id: string;
@@ -43,13 +43,43 @@ export const initialState: AuthState = {
   },
 };
 
-
 export const updateExpenses = createAsyncThunk(
   "expenses/update",
   async (details: ExpenseDetails, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(`${API_URL}/expenses`, details, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
+export const getExpenses = createAsyncThunk(
+  "expenses/getExpenses",
+  async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_URL}/expenses`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+);
+
+export const editExpenses = createAsyncThunk(
+  "expenses/editExpenses",
+  async (details: ExpenseDetails, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(`${API_URL}/expenses`, details, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -108,6 +138,7 @@ export const expensesSlice = createSlice({
   },
 });
 
-export const { addCustomExpense, updateCustomExpense, removeCustomExpense } = expensesSlice.actions;
+export const { addCustomExpense, updateCustomExpense, removeCustomExpense } =
+  expensesSlice.actions;
 
 export default expensesSlice.reducer;

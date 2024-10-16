@@ -46,7 +46,9 @@ export default function Expenses() {
       .catch((err) => alert(err));
   };
 
-  const handleAddExpense = () => {
+  const handleAddExpense = (e: any) => {
+    e.preventDefault();
+
     const name = prompt("Enter custom Expense Name");
     if (name) {
       const newExpense: CustomExpense = {
@@ -74,10 +76,10 @@ export default function Expenses() {
       </h1>
       <Formik
         initialValues={{
-          rent: expenses?.rent ?? 0,
-          car_payment: expenses?.car_Payment ?? 0,
-          Monthly_saving: expenses?.Monthly_saving ?? 0,
-          food: expenses?.food ?? 0,
+          rent: 0,
+          car_payment: 0,
+          Monthly_saving: 0,
+          food: 0,
           customExpenses:
             expenses?.customExpenses?.map((expense) => ({
               id: expense.id,
@@ -86,7 +88,7 @@ export default function Expenses() {
             })) ?? [],
         }}
         onSubmit={handleSubmit}
-        enableReinitialize={true}
+        enableReinitialize={false}
       >
         {({ isSubmitting }) => (
           <Form className="max-w-lg mx-auto p-6 bg-white rounded shadow-md">
@@ -106,6 +108,7 @@ export default function Expenses() {
                   name={field}
                   type="number"
                   className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200"
+                  placeholder="Enter amount in dollars"
                 />
               </div>
             ))}
@@ -115,16 +118,25 @@ export default function Expenses() {
               <div key={field.id} className="mb-4 flex items-center">
                 <div className="flex-grow">
                   <label
-                    htmlFor={field.id}
+                    htmlFor={field.name}
                     className="block text-gray-700 font-medium"
                   >
                     {field.name}
                   </label>
                   <Field
-                    name={`customExpenses.${field.id}`}
+                    name={`${field.name}`}
                     type="number"
                     className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200"
                     placeholder={`Enter amount for ${field.name}`}
+                    value={field.amount ?? ""} // Ensure controlled component
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const updatedValue = Number(e.target.value);
+                      setCustomFields(
+                        customFields.map((f) =>
+                          f.id === field.id ? { ...f, amount: updatedValue } : f
+                        )
+                      );
+                    }}
                   />
                 </div>
                 <button

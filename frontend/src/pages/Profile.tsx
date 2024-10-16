@@ -37,75 +37,37 @@ export default function Profile() {
         Update Profile
       </h1>
       <Formik
-        initialValues={{
-          amount: "",
-          name: "",
-          monthlyIncome: "",
-          goal: "",
-        }}
+        initialValues={{ amount: "", name: "", monthlyIncome: "", goal: "" }}
         validationSchema={ProfileSchema}
         onSubmit={handleSubmit}
       >
         {({ isSubmitting, setFieldValue }) => (
           <Form>
-            <div className="mb-4">
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Full Name:
-              </label>
-              <Field
-                name="name"
-                type="text"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 p-2"
-              />
-              <ErrorMessage
-                name="name"
-                component="div"
-                className="text-red-600 text-sm mt-1"
-              />
-            </div>
+            {["name", "monthlyIncome", "amount"].map((field) => (
+              <div key={field} className="mb-4">
+                <label
+                  htmlFor={field}
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {field === "amount"
+                    ? "Bank Balance"
+                    : field.charAt(0).toUpperCase() +
+                      field.slice(1).replace(/([A-Z])/g, " $1")}
+                  :
+                </label>
+                <Field
+                  name={field}
+                  type="text"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 p-2"
+                />
+                <ErrorMessage
+                  name={field}
+                  component="div"
+                  className="text-red-600 text-sm mt-1"
+                />
+              </div>
+            ))}
 
-            <div className="mb-4">
-              <label
-                htmlFor="monthlyIncome"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Monthly Income:
-              </label>
-              <Field
-                name="monthlyIncome"
-                type="text"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 p-2"
-              />
-              <ErrorMessage
-                name="monthlyIncome"
-                component="div"
-                className="text-red-600 text-sm mt-1"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="amount"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Bank Balance:
-              </label>
-              <Field
-                name="amount"
-                type="text"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 p-2"
-              />
-              <ErrorMessage
-                name="amount"
-                component="div"
-                className="text-red-600 text-sm mt-1"
-              />
-            </div>
-
-            
             <div className="mb-4">
               <label
                 htmlFor="goal"
@@ -117,18 +79,22 @@ export default function Profile() {
                 as="select"
                 name="goal"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500 p-2"
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  const selectedGoal = e.target.value;
-                  setFieldValue("goal", selectedGoal);
-
-                  setCustomGoal(selectedGoal === "Custom Goal"?true:false);
+                onChange={(e: { target: { value: string; }; }) => {
+                  setFieldValue("goal", e.target.value);
+                  setCustomGoal(e.target.value === "Custom Goal");
                 }}
               >
                 <option value="">Select a Goal</option>
-                <option value="Save More Money">Save More Money</option>
-                <option value="Invest in Stocks">Invest in Stocks</option>
-                <option value="Pay Off Debt">Pay Off Debt</option>
-                <option value="Custom Goal">Custom Goal</option>
+                {[
+                  "Save More Money",
+                  "Invest in Stocks",
+                  "Pay Off Debt",
+                  "Custom Goal",
+                ].map((goal) => (
+                  <option key={goal} value={goal}>
+                    {goal}
+                  </option>
+                ))}
               </Field>
               <ErrorMessage
                 name="goal"
@@ -160,7 +126,7 @@ export default function Profile() {
 
             <button
               type="submit"
-              disabled={isSubmitting }
+              disabled={isSubmitting}
               className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md shadow hover:bg-blue-500 transition duration-200"
             >
               {loading ? "Updating..." : "Update Profile"}
