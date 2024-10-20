@@ -67,7 +67,9 @@ export const getExpenses = createAsyncThunk(
       const response = await axios.get(`${API_URL}/expenses`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return response.data;
+      
+
+      return response.data.monthlyExpenses[0];
     } catch (err) {
       console.error(err);
     }
@@ -79,11 +81,12 @@ export const editExpenses = createAsyncThunk(
   async (details: ExpenseDetails, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(`${API_URL}/expenses`, details, {
+      const response = await axios.put(`${API_URL}/update`, details, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response.data.message);

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/store";
-import { ExpenseDetails, getExpenses } from "../features/auth/expensesSlice";
+import {
+  CustomExpense,
+  ExpenseDetails,
+  getExpenses,
+} from "../features/auth/expensesSlice";
 import { Pie, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -13,8 +17,8 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
-import EditExpenses from "./EditExpenses";
 import { fetchDetails } from "../features/auth/authSlice";
+import Expenses from "./Expenses";
 
 ChartJS.register(
   ArcElement,
@@ -41,40 +45,45 @@ export default function Homepage() {
   const [TotalExpenses, setTotalExpenses] = useState<number>(0);
   const [showEdit, setShowEdit] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/signup");
-    }
+  const [activechart, Setactivechart] = useState<boolean>(false);
 
-    const fetchMontlyIncome = () =>
-      dispatch(fetchDetails()).then((response) => {
-        if (response.meta.requestStatus === "fulfilled") {
-          SetMonthlyIncome(response.payload.monthlyIncome as number);
-        } else {
-          alert("Failed to fetch profile details.");
-        }
-      });
-
-    const fetchExpenses = async () => {
-      try {
-        const response: any = await dispatch(getExpenses()).unwrap();
-        setTotalExpenses(
-          data.food +
-            data.car_Payment +
-            data.rent +
-            data.customExpenses.reduce((total, expense) => {
-              return total + expense.amount;
-            }, 0)
+  const FETCHEXPENSES = () => {
+    dispatch(getExpenses())
+      .unwrap()
+      .then((response: any) => {
+        const {
+          rent = 0,
+          food = 0,
+          car_Payment = 0,
+          customExpenses = [],
+        } = response;
+        const customExpensesTotal = customExpenses.reduce(
+          (total: number, expense: CustomExpense) =>
+            total + (expense.amount || 0),
+          0
         );
         setData(response);
-      } catch (err) {
-        console.error("Failed to fetch expenses:", err);
-      }
-    };
+        setTotalExpenses(rent + food + car_Payment + customExpensesTotal);
+      })
+      .catch((err) => console.error("Failed to fetch expenses:", err));
+  };
 
-    fetchMontlyIncome();
-    fetchExpenses();
+  const FETCHDETAILS = () => {
+    dispatch(fetchDetails()).then((response) => {
+      if (response.meta.requestStatus === "fulfilled") {
+        SetMonthlyIncome(response.payload.monthlyIncome as number);
+      } else {
+        alert("Failed to fetch profile details.");
+      }
+    });
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) navigate("/signup");
+    FETCHDETAILS();
+
+    FETCHEXPENSES();
   }, [dispatch, navigate]);
 
   const pieChartData = {
@@ -82,7 +91,8 @@ export default function Homepage() {
       "Monthly Saving",
       "Food",
       "Rent",
-      ...(data.customExpenses?.map((expense) => expense.name) || []),
+      "Car Payment",
+      ...(data.customExpenses.map((e) => e.name) || []),
     ],
     datasets: [
       {
@@ -90,7 +100,8 @@ export default function Homepage() {
           data.Monthly_saving || 0,
           data.food || 0,
           data.rent || 0,
-          ...(data.customExpenses?.map((expense) => expense.amount) || []),
+          data.car_Payment || 0,
+          ...(data.customExpenses.map((e) => e.amount) || []),
         ],
         backgroundColor: [
           "#FF6384",
@@ -99,36 +110,10 @@ export default function Homepage() {
           "#4BC0C0",
           "#9966FF",
           "#FF9F40",
-          "#FF6384",
-          "#36A2EB",
-        ],
-        hoverBackgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-          "#FF6384",
-          "#36A2EB",
         ],
       },
     ],
   };
-  enum Months {
-    Jan = 1,
-    Feb,
-    Mar,
-    Apr,
-    May,
-    June,
-    July,
-    Aug,
-    Sep,
-    Oct,
-    Nov,
-    Dec,
-  }
 
   const lineChartData = {
     labels: [
@@ -145,14 +130,13 @@ export default function Homepage() {
       "Nov",
       "Dec",
     ],
-
     datasets: [
       {
         label: "Percentage Spent on Expenses",
         data: [50, 60, 45, 55, 70, 65, 75],
-        fill: false,
         borderColor: "#36A2EB",
-        tension: 0.1,
+        tension: 0.4,
+        fill: false,
       },
     ],
   };
@@ -160,57 +144,79 @@ export default function Homepage() {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "Expense Distribution",
-      },
+      legend: { position: "top" },
+      title: { display: true, text: "Expense Distribution" },
     },
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-8 space-y-12">
+      {/* Header Section */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Financial Overview</h1>
-        <p className="text-gray-600">
+        <h1 className="text-4xl font-extrabold text-gray-800">
+          Financial Overview
+        </h1>
+        <p className="text-gray-500 mt-2">
           Manage your expenses and savings effectively.
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/2 bg-white shadow-md rounded-lg p-4">
-          <h2 className="text-xl font-semibold mb-4">Expense Summary</h2>
-          <p>Total Monthly Income: ${MonthlyIncome.toFixed(2)}</p>
-          <p>
-            Total Expenses: $
-            {(data.food + data.rent + TotalExpenses).toFixed(2)}
+      {/* Summary and Pie Chart Section */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="bg-white shadow-lg rounded-lg p-6 space-y-4">
+          <h2 className="text-2xl font-semibold text-gray-700">
+            Expense Summary
+          </h2>
+          <p className="text-gray-600">
+            Total Monthly Income:{" "}
+            <span className="font-medium">${MonthlyIncome.toFixed(2)}</span>
           </p>
-          <p>
-            Net Savings: ${(MonthlyIncome - data.Monthly_saving).toFixed(2)}
+          <p className="text-gray-600">
+            Total Expenses:{" "}
+            <span className="font-medium">${TotalExpenses.toFixed(2)}</span>
+          </p>
+          <p className="text-gray-600">
+            Net Savings:{" "}
+            <span className="font-medium">
+              ${(MonthlyIncome - data.Monthly_saving).toFixed(2)}
+            </span>
           </p>
         </div>
 
-        <div className="w-full md:w-1/2">
-          <h2 className="text-xl font-semibold mb-4">Expense Distribution</h2>
-          <Pie data={pieChartData} options={chartOptions} />
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+            Expense Distribution
+          </h2>
+          <Pie data={pieChartData} />
         </div>
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Expense Trend</h2>
-        <Line data={lineChartData} options={chartOptions} />
+      {/* Line Chart Section */}
+
+      <div className="bg-white shadow-lg rounded-lg p-6">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+          Expense Trend
+        </h2>
+        <Line data={lineChartData} />
       </div>
 
-      <button
-        onClick={() => setShowEdit(!showEdit)}
-        className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
-      >
-        {showEdit ? "Close Edit" : "⚙ Edit Expenses"}
-      </button>
+      {/* Edit Expenses Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => setShowEdit(!showEdit)}
+          className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-full shadow-md transition"
+        >
+          {showEdit ? "Close Edit" : "⚙ Edit Expenses"}
+        </button>
+      </div>
 
-      {showEdit && <EditExpenses />}
+      {/* Edit Expenses Component */}
+      {showEdit && (
+        <div className="mt-8">
+          <Expenses />
+        </div>
+      )}
     </div>
   );
 }

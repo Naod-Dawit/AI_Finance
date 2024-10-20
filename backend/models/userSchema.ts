@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    default: "", // Make name optional by setting a default value
+    default: "", 
   },
   monthlyIncome: {
     type: Number,

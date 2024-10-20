@@ -1,26 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { Field, Form, Formik } from "formik";
 import { nanoid } from "@reduxjs/toolkit";
-import { RootState, useAppDispatch } from "../store/store";
+import { useAppDispatch } from "../store/store";
 import { fetchDetails, ProfileDetails } from "../features/auth/authSlice";
 import {
   updateExpenses,
   addCustomExpense,
   removeCustomExpense,
   CustomExpense,
+  getExpenses,
 } from "../features/auth/expensesSlice";
 
 export default function Expenses() {
   const [data, setData] = useState<ProfileDetails | null>(null);
+  const [customFields, setCustomFields] = useState<CustomExpense[]>([]);
+  const [formData, setFormData] = useState({
+    rent: 0,
+    car_payment: 0,
+    Monthly_saving: 0,
+    food: 0,
+  });
+
+  const [customOpen, setCustomOpen] = useState(false); // State for accordion
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [customFields, setCustomFields] = useState<CustomExpense[]>([]);
-
-  const expenses = useSelector(
-    (state: RootState) => state.reducers.expenses.expenses
-  );
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -38,18 +41,61 @@ export default function Expenses() {
     }
   }, [dispatch, navigate, token]);
 
-  const handleSubmit = async (values: any) => {
-    await dispatch(updateExpenses({ ...values, customExpenses: customFields }))
-      .unwrap()
-      .then(() => alert("Expenses added successfully"))
-      .then(() => navigate("/"))
-      .catch((err) => alert(err));
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        const response = await dispatch(getExpenses()).unwrap();
+        const { rent = 0, food = 0,Monthly_saving=0, car_Payment = 0, customExpenses = [] } =
+          response;
+
+        setFormData({
+          ...formData,
+          rent,
+          food,
+          Monthly_saving,
+          car_payment: car_Payment,
+        });
+        setCustomFields(customExpenses);
+      } catch (err) {
+        console.error("Failed to fetch expenses:", err);
+      }
+    };
+    fetchExpenses();
+  }, [dispatch]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: parseFloat(value) || 0 });
   };
 
-  const handleAddExpense = (e: any) => {
-    e.preventDefault();
+  const handleCustomExpenseChange = (id: string, amount: number) => {
+    setCustomFields(
+      customFields.map((field) =>
+        field.id === id ? { ...field, amount } : field
+      )
+    );
+  };
 
-    const name = prompt("Enter custom Expense Name");
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      await dispatch(
+        updateExpenses({
+          ...formData,
+          customExpenses: customFields,
+          car_Payment: 0,
+          others: 0
+        })
+      ).unwrap();
+      alert("Expenses updated successfully");
+      navigate("/");
+    } catch (err) {
+      alert("Failed to update expenses");
+    }
+  };
+
+  const handleAddExpense = () => {
+    const name = prompt("Enter custom expense name");
     if (name) {
       const newExpense: CustomExpense = {
         id: nanoid(),
@@ -74,103 +120,100 @@ export default function Expenses() {
           {data ? data.name : "Guest"}
         </span>
       </h1>
-      <Formik
-        initialValues={{
-          rent: 0,
-          car_payment: 0,
-          Monthly_saving: 0,
-          food: 0,
-          customExpenses:
-            expenses?.customExpenses?.map((expense) => ({
-              id: expense.id,
-              name: expense.name,
-              amount: expense.amount ?? 0,
-            })) ?? [],
-        }}
+
+      <form
         onSubmit={handleSubmit}
-        enableReinitialize={false}
+        className="max-w-lg mx-auto p-6 bg-white rounded shadow-md"
       >
-        {({ isSubmitting }) => (
-          <Form className="max-w-lg mx-auto p-6 bg-white rounded shadow-md">
-            <h2 className="text-2xl font-semibold mb-6">Expense Tracker</h2>
+        <h2 className="text-2xl font-semibold mb-6">Expense Tracker</h2>
 
-            {/* Standard expense fields */}
-            {["rent", "car_payment", "Monthly_saving", "food"].map((field) => (
-              <div key={field} className="mb-4">
-                <label
-                  htmlFor={field}
-                  className="block text-gray-700 font-medium"
-                >
-                  {field.charAt(0).toUpperCase() +
-                    field.slice(1).replace("_", " ")}
-                </label>
-                <Field
-                  name={field}
-                  type="number"
-                  className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200"
-                  placeholder="Enter amount in dollars"
-                />
-              </div>
-            ))}
-
-            {/* Custom expense fields */}
-            {customFields.map((field) => (
-              <div key={field.id} className="mb-4 flex items-center">
-                <div className="flex-grow">
-                  <label
-                    htmlFor={field.name}
-                    className="block text-gray-700 font-medium"
-                  >
-                    {field.name}
-                  </label>
-                  <Field
-                    name={`${field.name}`}
-                    type="number"
-                    className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200"
-                    placeholder={`Enter amount for ${field.name}`}
-                    value={field.amount ?? ""} // Ensure controlled component
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const updatedValue = Number(e.target.value);
-                      setCustomFields(
-                        customFields.map((f) =>
-                          f.id === field.id ? { ...f, amount: updatedValue } : f
-                        )
-                      );
-                    }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveExpense(field.id)}
-                  className="ml-2 bg-red-500 text-white p-2 rounded hover:bg-red-600 transition duration-200"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-
-            {/* Add custom expense button */}
-            <button
-              type="button"
-              onClick={handleAddExpense}
-              className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200"
-            >
-              + Add Custom Expense
-            </button>
-
-            {/* Update expenses button */}
-            <div className="mt-6">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition duration-200"
+          <h1  className="text-center text-2xl m-5">BASIC EXPENSES</h1>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {Object.entries(formData).map(([field, value]) => (
+            <div key={field}>
+              <label
+                htmlFor={field}
+                className="block text-gray-700 font-medium mb-2"
               >
-                {isSubmitting ? "Updating..." : "Update Expenses"}
-              </button>
+                {field.charAt(0).toUpperCase() + field.slice(1).replace("_", " ")}
+              </label>
+              <input
+                id={field}
+                name={field}
+                type="number"
+                value={value}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200"
+                placeholder={`Enter ${field}`}
+              />
             </div>
-          </Form>
-        )}
-      </Formik>
+          ))}
+        </div>
+
+        {/* Accordion for Custom Expenses */}
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() => setCustomOpen(!customOpen)}
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200"
+          >
+            {customOpen ? "Hide Custom Expenses" : "Show Custom Expenses"}
+          </button>
+
+          {customOpen && (
+            <div className="mt-4 max-h-64 overflow-y-auto">
+              {customFields.map((field) => (
+                <div
+                  key={field.id}
+                  className="mb-4 flex items-center space-x-2"
+                >
+                  <input
+                    type="text"
+                    value={field.name}
+                    disabled
+                    className="flex-grow p-2 border border-gray-300 rounded"
+                  />
+                  <input
+                    type="number"
+                    value={field.amount}
+                    onChange={(e) =>
+                      handleCustomExpenseChange(
+                        field.id,
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    className="w-24 p-2 border border-gray-300 rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveExpense(field.id)}
+                    className="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition duration-200"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAddExpense}
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200"
+        >
+          + Add Custom Expense
+        </button>
+
+        <div className="mt-6 sticky bottom-0 bg-white p-4">
+          <button
+            type="submit"
+            className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 transition duration-200"
+          >
+            Update Expenses
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
