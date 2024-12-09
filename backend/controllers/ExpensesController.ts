@@ -52,6 +52,7 @@ export const updateCurrentMonthExpenses = async (
 
     const customExpensesWithDate = customExpenses.map((expense: any) => ({
       ...expense,
+      name: expense.name,
       date: new Date(), // Add current date to each expense
     }));
     // More precise update method

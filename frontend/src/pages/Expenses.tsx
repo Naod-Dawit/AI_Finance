@@ -71,12 +71,11 @@ export default function Expenses() {
             insurance: 0,
           },
           Housing = 0,
-          customExpenses = [],
         } = response;
         setFormData({ food, Monthly_saving_Goal, Housing, Transportation });
-        console.log(formData);
+        console.log(response);
 
-        setCustomFields(customExpenses);
+        setCustomFields(response.customExpenses);
       } catch (err) {
         console.error("Failed to fetch expenses:", err);
       }
