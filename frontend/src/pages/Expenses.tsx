@@ -12,7 +12,7 @@ import {
   editExpenses,
 } from "../features/auth/expensesSlice";
 import { useSelector } from "react-redux";
-import { Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import Navbar from "./navbar/Navbar";
 
 export default function Expenses() {
@@ -30,6 +30,11 @@ export default function Expenses() {
       insurance: 0,
     },
   });
+  const [activeTab, setActiveTab] = useState("Basic Expenses");
+
+  const handleTabChange = (tab: React.SetStateAction<string>) => {
+    setActiveTab(tab);
+  };
 
   const [customOpen, setCustomOpen] = useState(false);
   const navigate = useNavigate();
@@ -84,34 +89,39 @@ export default function Expenses() {
     if (expensesUpdated) {
       fetchExpenses();
     }
-  }, [dispatch, expensesUpdated]);
+  }, [dispatch, expensesUpdated,navigate]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
 
+    // Handle Transportation fields
     if (name === "TransportationMode") {
-      setFormData({
-        ...formData,
-        Transportation: { ...formData.Transportation, mode: value },
-      });
-    } else if (name in formData.Transportation) {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
+        Transportation: { ...prev.Transportation, mode: value },
+      }));
+    } else if (["cost", "carPayment", "insurance"].includes(name)) {
+      setFormData((prev) => ({
+        ...prev,
         Transportation: {
-          ...formData.Transportation,
+          ...prev.Transportation,
           [name]: parseFloat(value) || 0,
         },
-      });
+      }));
     } else {
-      setFormData({ ...formData, [name]: parseFloat(value) || 0 });
+      // Handle other fields
+      setFormData((prev) => ({
+        ...prev,
+        [name]: parseFloat(value) || 0,
+      }));
     }
   };
 
   const handleCustomExpenseChange = (id: string, amount: number) => {
-    setCustomFields(
-      customFields.map((field) =>
+    setCustomFields((prevFields) =>
+      prevFields.map((field) =>
         field.id === id ? { ...field, amount } : field
       )
     );
@@ -181,183 +191,228 @@ export default function Expenses() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto p-6 bg-gray-700 text-gray-200">
-        <h1 className="text-center text-2xl mb-8">
-          Welcome to AI Finance Management{" "}
-          <span className="italic text-blue-400 font-bold">
+      <div className="container mx-auto p-6 bg-gradient-to-br from-gray-800 to-gray-900 min-h-screen">
+        <h1 className="text-center text-3xl mb-10 text-white font-bold tracking-tight">
+          AI Finance Management for{" "}
+          <span className="text-blue-400 italic">
             {data ? data.name : "Guest"}
           </span>
         </h1>
 
         <form
           onSubmit={handleSubmit}
-          className="max-w-4xl mx-auto p-6 bg-gray-800 rounded-lg shadow-2xl border border-gray-700"
+          className="max-w-5xl mx-auto bg-gray-800 rounded-2xl shadow-2xl border-2 border-gray-700 overflow-hidden"
         >
-          <h2 className="text-3xl font-semibold mb-8 text-center text-blue-400">
-            Expense Tracker
-          </h2>
-
-          {/* Basic Expenses Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 gap-x-200 ">
-            {Object.entries(formData)
-              .filter(([key]) => key !== "Transportation")
-              .map(([field, value]) => (
-                <div key={field} className="space-y-2">
-                  <label
-                    htmlFor={field}
-                    className="block text-gray-300 font-medium"
-                  >
-                    {field.charAt(0).toUpperCase() +
-                      field.slice(1).replaceAll("_", " ")}
-                  </label>
-                  <input
-                    id={field}
-                    name={field}
-                    type="number"
-                    value={typeof value === "number" ? value : value.cost}
-                    onChange={handleInputChange}
-                    className="w-full p-4 border bg-gray-700 border-gray-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder={`Enter ${field}`}
-                  />
-                </div>
-              ))}
+          {/* Expense Tracker Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
+            <h2 className="text-4xl font-extrabold text-center text-white">
+              Expense Tracker
+            </h2>
           </div>
 
-          {/* Transportation Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            <div className="space-y-2 ">
-              <label
-                htmlFor="TransportationMode"
-                className="block text-gray-300 font-medium"
-              >
-                Transportation Mode
-              </label>
-              <select
-                id="TransportationMode"
-                name="TransportationMode"
-                value={formData.Transportation.mode}
-                onChange={handleInputChange}
-                className="w-full p-4 border border-gray-600 bg-gray-700 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="public">Public</option>
-                <option value="personal">Personal</option>
-              </select>
+          {/* Main Form Content */}
+          <div className="p-8 space-y-8">
+            {/* Basic Expenses Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Object.entries(formData)
+                .filter(([key]) => key !== "Transportation")
+                .map(([field, value]) => (
+                  <div key={field} className="group relative">
+                    <input
+                      id={field}
+                      name={field}
+                      type="number"
+                      value={typeof value === "number" ? value : value.cost}
+                      onChange={handleInputChange}
+                      className="peer w-full p-4 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 placeholder-transparent"
+                      placeholder={`Enter ${field}`}
+                    />
+                    <label
+                      htmlFor={field}
+                      className="absolute left-3 -top-3 bg-gray-800 px-2 text-sm text-gray-400 transition-all duration-300 
+                        peer-placeholder-shown:top-4 
+                        peer-placeholder-shown:text-base 
+                        peer-focus:-top-3 
+                        peer-focus:text-sm 
+                        peer-focus:text-blue-400"
+                    >
+                      {field.charAt(0).toUpperCase() +
+                        field.slice(1).replaceAll("_", " ")}
+                    </label>
+                  </div>
+                ))}
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="cost" className="block text-gray-300 font-medium">
-                Transportation Cost
-              </label>
-              <input
-                id="cost"
-                name="cost"
-                type="number"
-                value={formData.Transportation.cost || 0}
-                onChange={handleInputChange}
-                className="w-full p-4 border border-gray-600 bg-gray-700 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter Transportation Cost"
-              />
-            </div>
-
-            {formData.Transportation.mode === "personal" && (
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="carPayment"
-                    className="block text-gray-300 font-medium"
-                  >
-                    Car Payment
-                  </label>
-                  <input
-                    id="carPayment"
-                    name="carPayment"
-                    type="number"
-                    value={formData.Transportation.carPayment}
+            {/* Transportation Section */}
+            <div className="bg-gray-700 rounded-lg p-6 space-y-6">
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                Transportation Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="relative">
+                  <select
+                    id="TransportationMode"
+                    name="TransportationMode"
+                    value={formData.Transportation.mode}
                     onChange={handleInputChange}
-                    className="w-full p-4 border border-gray-600 bg-gray-700 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter Car Payment"
-                  />
+                    className="peer w-full p-4 bg-gray-600 text-white rounded-lg border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                  >
+                    <option value="public">Public Transportation</option>
+                    <option value="personal">Personal Vehicle</option>
+                  </select>
+                  <label
+                    htmlFor="TransportationMode"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  >
+                    <ChevronDown className="w-5 h-5" />
+                  </label>
                 </div>
 
-                <div className="space-y-2">
-                  <label
-                    htmlFor="insurance"
-                    className="block text-gray-300 font-medium"
-                  >
-                    Insurance
-                  </label>
+                <div className="relative">
                   <input
-                    id="insurance"
-                    name="insurance"
+                    id="cost"
+                    name="cost"
                     type="number"
-                    value={formData.Transportation.insurance}
+                    value={formData.Transportation.cost || 0}
                     onChange={handleInputChange}
-                    className="w-full p-4 border border-gray-600 bg-gray-700 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter Insurance Cost"
+                    className="peer w-full p-4 bg-gray-600 text-white rounded-lg border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-transparent"
+                    placeholder="Transportation Cost"
                   />
+                  <label
+                    htmlFor="cost"
+                    className="absolute left-3 -top-3 bg-gray-700 px-2 text-sm text-gray-400 transition-all duration-300 
+                      peer-placeholder-shown:top-4 
+                      peer-placeholder-shown:text-base 
+                      peer-focus:-top-3 
+                      peer-focus:text-sm 
+                      peer-focus:text-blue-400"
+                  >
+                    Transportation Cost
+                  </label>
                 </div>
+
+                {formData.Transportation.mode === "personal" && (
+                  <>
+                    <div className="relative">
+                      <input
+                        id="carPayment"
+                        name="carPayment"
+                        type="number"
+                        value={formData.Transportation.carPayment}
+                        onChange={handleInputChange}
+                        className="peer w-full p-4 bg-gray-600 text-white rounded-lg border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-transparent"
+                        placeholder="Car Payment"
+                      />
+                      <label
+                        htmlFor="carPayment"
+                        className="absolute left-3 -top-3 bg-gray-700 px-2 text-sm text-gray-400 transition-all duration-300 
+                          peer-placeholder-shown:top-4 
+                          peer-placeholder-shown:text-base 
+                          peer-focus:-top-3 
+                          peer-focus:text-sm 
+                          peer-focus:text-blue-400"
+                      >
+                        Car Payment
+                      </label>
+                    </div>
+                    <div className="relative">
+                      <input
+                        id="insurance"
+                        name="insurance"
+                        type="number"
+                        value={formData.Transportation.insurance}
+                        onChange={handleInputChange}
+                        className="peer w-full p-4 bg-gray-600 text-white rounded-lg border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-transparent"
+                        placeholder="Insurance Cost"
+                      />
+                      <label
+                        htmlFor="insurance"
+                        className="absolute left-3 -top-3 bg-gray-700 px-2 text-sm text-gray-400 transition-all duration-300 
+                          peer-placeholder-shown:top-4 
+                          peer-placeholder-shown:text-base 
+                          peer-focus:-top-3 
+                          peer-focus:text-sm 
+                          peer-focus:text-blue-400"
+                      >
+                        Insurance Cost
+                      </label>
+                    </div>
+                  </>
+                )}
               </div>
-            )}
-          </div>
-          <br />
-          {/* Custom Expenses Section */}
-          <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-6 ">
-            <h3 className="text-xl text-gray-300 font-semibold">
-              Custom Expenses
-            </h3>
-            <button
-              type="button"
-              onClick={handleAddExpense}
-              className="text-blue-400 hover:text-blue-300 transition"
-            >
-              <Plus className="h-10 w-10 ml-[200%]" />
-            </button>
-            <div></div>
+            </div>
 
-            {customFields.map((expense) => (
-              <div
-                key={expense.id}
-                className="space-y-2 border-b border-gray-700 pb-4"
-              >
-                <label
-                  htmlFor={expense.id}
-                  className="block text-gray-300 font-medium"
+            {/* Custom Expenses Section */}
+            <div className="bg-gray-700 rounded-lg p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-semibold text-white">
+                  Custom Expenses
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleAddExpense}
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 transition-colors duration-300"
                 >
-                  {expense.name}
-                </label>
-                <div className="flex items-center space-x-2">
-                  <input
-                    id={expense.id}
-                    type="number"
-                    value={expense.amount}
-                    onChange={(e) =>
-                      handleCustomExpenseChange(
-                        expense.id,
-                        parseFloat(e.target.value)
-                      )
-                    }
-                    className="flex-grow p-4 border border-gray-600 bg-gray-700 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter amount"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveExpense(expense.id)}
-                    className="text-red-500 hover:text-red-400 transition"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </div>
+                  <Plus className="h-6 w-6" />
+                </button>
               </div>
-            ))}
-          </div>
 
-          <div className="mt-8 text-center">
-            <button
-              type="submit"
-              className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
-            >
-              Submit
-            </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {customFields.map((expense) => (
+                  <div
+                    key={expense.id}
+                    className="bg-gray-600 rounded-lg p-4 flex items-center space-x-4"
+                  >
+                    <div className="flex-grow relative">
+                      <input
+                        id={expense.id}
+                        type="number"
+                        value={expense.amount}
+                        onChange={(e) =>
+                          handleCustomExpenseChange(
+                            expense.id,
+                            parseFloat(e.target.value)
+                          )
+                        }
+                        className="peer w-full p-3 bg-gray-500 text-white rounded-lg border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-transparent"
+                        placeholder="Enter amount"
+                      />
+                      <label
+                        htmlFor={expense.id}
+                        className="absolute left-3 -top-3 bg-gray-600 px-2 text-sm text-gray-400 transition-all duration-300 
+                          peer-placeholder-shown:top-4 
+                          peer-placeholder-shown:text-base 
+                          peer-focus:-top-3 
+                          peer-focus:text-sm 
+                          peer-focus:text-blue-400"
+                      >
+                        {expense.name}
+                      </label>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveExpense(expense.id)}
+                      className="text-red-400 hover:text-red-300 transition-colors duration-300"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="text-center mt-8">
+              <button
+                type="submit"
+                className="px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-full 
+                hover:from-blue-700 hover:to-purple-700 
+                focus:outline-none focus:ring-4 focus:ring-blue-300 
+                transition-all duration-300 transform hover:scale-105"
+              >
+                Submit Expenses
+              </button>
+            </div>
           </div>
         </form>
       </div>

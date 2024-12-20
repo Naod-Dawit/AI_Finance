@@ -32,6 +32,7 @@ const ExpensesSchema = new Schema({
       food: { type: Number, required: true },
       customExpenses: [
         {
+          id:Number,
           name: String,
           amount: Number,
           date: { type: Date, default: Date.now },

@@ -9,7 +9,7 @@ type Props={
 }
 export default function LineChart({expensePercentages}:Props) {
   return (
-    <div className="bg-gray-100 shadow-lg rounded-lg p-6">
+    <div className="bg-gray-900 shadow-lg rounded-lg p-6">
       <h2 className="text-xl font-semibold text-gray-200 mb-4">
         Expense Trend
       </h2>

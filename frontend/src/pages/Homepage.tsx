@@ -38,6 +38,8 @@ import { getActiveExpenseData, getLineChartData } from "../utils/chartData";
 import Summary from "./sections/Summary";
 import PieChart from "./sections/piechart";
 import LineChart from "./sections/linechart";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Homepage() {
   const navigate = useNavigate();
@@ -128,11 +130,9 @@ export default function Homepage() {
           customExpensesTotal
       );
     } catch (error) {
-      setError({
-        message: "Unable to load expenses. Please try again later.",
-        details: error instanceof Error ? error.message : String(error),
-      });
-      console.error("Failed to fetch expenses:", error);
+      setError("Unable to load expenses. Please try again later.");
+      toast.error("Unable to load expenses. Please try again later.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -143,10 +143,9 @@ export default function Homepage() {
       const response = await dispatch(fetchDetails()).unwrap();
       SetMonthlyIncome(response.monthlyIncome as number);
     } catch {
-      alert("Failed to fetch profile details.");
+      toast.error("Failed to fetch profile details.");
     }
   };
-  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -170,43 +169,31 @@ export default function Homepage() {
           setOldExpenses(response);
         }
       } catch (error) {
-        console.error("Failed to fetch old expenses:", error);
+        toast.error("Failed to fetch old expenses.");
+        console.log(error);
       }
     }
   };
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
       <ErrorBoundary>
         <Navbar />
         {loading ? (
           <LoadingSpinner />
-        ) : error ? (
-          <div className="container mx-auto p-8 bg-red-100 text-red-800">
-            <h2>Error Loading Data</h2>
-            <p>{error.message}</p>
-            <button
-              onClick={() => {
-                setError(null);
-                fetchExpenseData();
-              }}
-              className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-            >
-              Retry
-            </button>
-          </div>
-        ) : (
+        ): (
           <div className="container mx-auto p-8 space-y-12 bg-gray-700 text-gray-100">
-            {/* Header Section */}
             <div className="text-center space-y-2">
               <h1 className="text-2xl font-bold text-green-400">
                 Financial Overview
               </h1>
             </div>
-
-            {/* Grid Layout for Financial Summary and Pie Chart */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-full">
-              {/* Financial Summary Section */}
               <Summary
                 MonthlyIncome={MonthlyIncome}
                 TotalExpenses={TotalExpenses}
@@ -224,8 +211,6 @@ export default function Homepage() {
                 OldExpenses={OldExpenses}
               />
             </div>
-
-            {/* Line Chart Section for Expense Trends */}
             <LineChart expensePercentages={expensePercentages} />
           </div>
         )}
