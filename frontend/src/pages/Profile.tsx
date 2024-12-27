@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { fetchDetails, profile, ProfileDetails } from "../features/auth/authSlice";
 import { RootState, useAppDispatch } from "../store/store";
 import { useNavigate } from "react-router-dom";
+import Navbar from "./navbar/Navbar";
+import '../assets/dollar.svg'
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -65,93 +67,130 @@ export default function Profile() {
 
   return (
     <>
-    <div className="max-w-lg mx-auto mt-10 p-8 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-2xl text-3xl w-full h-full">
-      <h1 className="text-4xl text-center font-bold text-blue-400 mb-6">
-        Update Profile
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {["name", "monthlyIncome"].map((field:any) => (
-          <div key={field}>
-            <label
-              htmlFor={field}
-              className="block text-lg font-semibold text-gray-300 mb-2"
-            >
-              {field.charAt(0).toUpperCase() +
-                field.slice(1).replace(/([A-Z])/g, " $1")}
-            </label>
-            <input
-              type="text"
-              name={field}
-              value={formData[field]}
-              onChange={handleInputChange}
-              className="block w-full border border-gray-600 bg-gray-700 rounded-lg shadow-sm p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={`Enter your ${field}`}
-            />
-            {errors[field] && (
-              <div className="text-sm text-red-500 mt-2">{errors[field]}</div>
-            )}
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* Left Section: Motivational Content */}
+          <div className="flex flex-col items-center md:items-start space-y-6">
+            <h1 className="text-4xl font-extrabold text-blue-400">
+              Build Your Financial Future
+            </h1>
+            <p className="text-lg text-gray-300">
+              Your profile helps us tailor financial tools and advice just for
+              you. Take the first step toward better financial management.
+            </p>
+        
           </div>
-        ))}
-  
-        <div>
-          <label htmlFor="goal" className="block text-lg font-semibold text-gray-300 mb-2">
-            Goal
-          </label>
-          <select
-            name="goal"
-            value={formData.goal}
-            onChange={handleInputChange}
-            className="block w-full border border-gray-600 bg-gray-700 rounded-lg shadow-sm p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="" disabled>
-              Select a Goal
-            </option>
-            {["Save More Money", "Invest in Stocks", "Pay Off Debt", "Custom Goal"].map(
-              (goal) => (
-                <option key={goal} value={goal}>
-                  {goal}
-                </option>
-              )
-            )}
-          </select>
-          {errors.goal && (
-            <div className="text-sm text-red-500 mt-2">{errors.goal}</div>
-          )}
+
+          {/* Right Section: Update Profile Form */}
+          <div className="max-w-lg mx-auto bg-gradient-to-b from-gray-800 to-gray-700 rounded-2xl shadow-2xl p-8">
+            <h2 className="text-3xl font-bold text-center text-blue-400 mb-8">
+              Update Profile
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {["name", "monthlyIncome"].map((field) => (
+                <div key={field}>
+                  <label
+                    htmlFor={field}
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    {field.charAt(0).toUpperCase() +
+                      field.slice(1).replace(/([A-Z])/g, " $1")}
+                  </label>
+                  <input
+                    type="text"
+                    name={field}
+                    value={formData[field]}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-600 bg-gray-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+                    placeholder={`Enter your ${field}`}
+                  />
+                  {errors[field] && (
+                    <div className="text-xs text-red-400 mt-2">
+                      {errors[field]}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              <div>
+                <label
+                  htmlFor="goal"
+                  className="block text-sm font-medium text-gray-300 mb-2"
+                >
+                  Goal
+                </label>
+                <select
+                  name="goal"
+                  value={formData.goal}
+                  onChange={handleInputChange}
+                  className="block w-full border border-gray-600 bg-gray-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+                >
+                  <option value="" disabled>
+                    Select a Goal
+                  </option>
+                  {["Save More Money", "Invest in Stocks", "Pay Off Debt", "Custom Goal"].map(
+                    (goal) => (
+                      <option key={goal} value={goal}>
+                        {goal}
+                      </option>
+                    )
+                  )}
+                </select>
+                {errors.goal && (
+                  <div className="text-xs text-red-400 mt-2">{errors.goal}</div>
+                )}
+              </div>
+
+              {customGoal && (
+                <div>
+                  <label
+                    htmlFor="customGoal"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Custom Goal
+                  </label>
+                  <textarea
+                    name="customGoal"
+                    value={formData.customGoal}
+                    onChange={handleInputChange}
+                    className="block w-full border border-gray-600 bg-gray-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+                    placeholder="Describe your custom goal"
+                  />
+                  {errors.customGoal && (
+                    <div className="text-xs text-red-400 mt-2">
+                      {errors.customGoal}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-lg rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200"
+              >
+                {loading ? "Updating..." : "Update Profile"}
+              </button>
+              {error && (
+                <div className="text-sm text-red-400 mt-4">{error}</div>
+              )}
+              {profileUpdated && (
+                <div className="text-sm text-green-400 mt-4">
+                  Profile updated successfully!
+                </div>
+              )}
+            </form>
+          </div>
         </div>
-  
-        {customGoal && (
-          <div>
-            <label
-              htmlFor="customGoal"
-              className="block text-lg font-semibold text-gray-300 mb-2"
-            >
-              Custom Goal:
-            </label>
-            <textarea
-              name="customGoal"
-              value={formData.customGoal}
-              onChange={handleInputChange}
-              className="block w-full h-32 border border-gray-600 bg-gray-700 rounded-lg shadow-sm p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Describe your custom goal"
-            />
-            {errors.customGoal && (
-              <div className="text-sm text-red-500 mt-2">{errors.customGoal}</div>
-            )}
-          </div>
-        )}
-  
-        <button
-          type="submit"
-          className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg rounded-lg shadow hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200"
-        >
-          {loading ? "Updating..." : "Update Profile"}
-        </button>
-        {error && <div className="text-sm text-red-500 mt-3">{error}</div>}
-        {profileUpdated && (
-          <div className="text-sm text-green-500 mt-3">Profile updated successfully!</div>
-        )}
-      </form>
-    </div>
+
+        {/* Bottom Section: Motivational Quote */}
+        <div className="mt-12 text-center">
+          <p className="text-gray-400 italic text-lg">
+            "Your financial journey starts with a single step. Update your
+            profile and take control of your goals today."
+          </p>
+        </div>
+      </div>
     </>
   );
   

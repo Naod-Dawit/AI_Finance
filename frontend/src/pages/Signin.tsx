@@ -27,108 +27,116 @@ export default function Signin() {
     setFormErrors({ ...formErrors, [name]: "" });
   };
 
- 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-      dispatch(signin(formData) as any).then(() => navigate("/"));
-    
+    dispatch(signin(formData) as any).then(() => navigate("/"));
   };
 
   return (
-    <div className="flex flex-wrap w-[1132px] h-[773.8px] mx-auto mt-6 p-6">
-      {/* Welcome Block */}
-      <div className="w-[431.01px] h-[733.8px] p-4 bg-gradient-to-r from-[#1b1b1b]  to-[#5a3081] text-white rounded-md md:rounded-r-none text-[27.55px]">
-        <br />
-        <br />
-        <h1 className="text-[30px]">Welcome Back!</h1>
-        <br />
-        <br />
-        <p className="mt-2">
-          Ready to dive back into managing your finances? Here's what you can do:
-        </p>
-        <ul className="list-disc pl-6 mt-4 space-y-2">
-          <li>Review past expenses with detailed charts.</li>
-          <li>Stay on track with your savings goals.</li>
-          <li>Plan ahead with personalized financial insights.</li>
-        </ul>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 ">
+      {error && <div className="text-red-600 text-sm mt-1">{error}</div>}
+
+      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        {/* Left Section: Welcome Back Content */}
+        <div className="flex flex-col space-y-6">
+          <h1 className="text-4xl font-extrabold text-green-400">
+            Welcome Back!
+          </h1>
+          <p className="text-lg text-gray-300">
+            Ready to dive back into managing your finances? Here's what you can
+            do:
+          </p>
+          <ul className="list-disc pl-6 space-y-4 text-gray-300">
+            <li>Review past expenses with detailed charts.</li>
+            <li>Stay on track with your savings goals.</li>
+            <li>Plan ahead with personalized financial insights.</li>
+          </ul>
+        </div>
+
+        {/* Right Section: Sign In Form */}
+        <div className="bg-gradient-to-b from-gray-800 to-gray-700 rounded-2xl shadow-2xl p-8">
+          <h2 className="text-3xl font-bold text-center text-green-400 mb-8">
+            Sign In
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-300"
+              >
+                Email:
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="block w-full border border-gray-600 bg-gray-800 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
+              />
+              {formErrors.email && (
+                <div className="text-xs text-red-400">{formErrors.email}</div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-300"
+              >
+                Password:
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="block w-full border border-gray-600 bg-gray-800 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
+              />
+              {formErrors.password && (
+                <div className="text-xs text-red-400">
+                  {formErrors.password}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between items-center pt-4">
+              <Link
+                to="/forgot-password"
+                className="text-gray-300 text-sm hover:text-gray-100 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Forgot Password?
+              </Link>
+              <button
+                type="submit"
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg shadow-md hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all duration-200"
+                onClick={handleSubmit}
+              >
+                Sign in
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6 text-center">
+            <Link
+              to="/signup"
+              className="text-blue-400 text-sm hover:text-blue-300"
+            >
+              Don't have an account? Sign Up
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Input Form Block */}
-      <div className="w-full md:w-1/2 p-4 bg-gray-800 rounded-md md:rounded-l-none">
-        <h1 className="text-5xl text-center font-bold text-green-400">
-          Sign In
-        </h1>
-        {error && (
-          <div className="text-red-600 text-center mt-2 mb-4">{error}</div>
-        )}
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-y-[139px] text-[#ffd700] text-3xl">
-          <div className="flex flex-col gap-y-2">
-            <label
-              htmlFor="email"
-              className="  font-medium"
-            >
-              Email:
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-300 focus:border-green-500 p-2 bg-gray-700 text-white h-[60px]"
-            />
-            {formErrors.email && (
-              <div className="text-red-600 text-sm">{formErrors.email}</div>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-y-2">
-            <label
-              htmlFor="password"
-              className=" font-medium"
-            >
-              Password:
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-300 focus:border-green-500 p-2 bg-gray-700 text-white h-[60px]"
-            />
-            {formErrors.password && (
-              <div className="text-red-600 text-sm">{formErrors.password}</div>
-            )}
-          </div>
-
-          <div className="flex justify-between items-center text-2xl">
-            <Link
-              to="/forgot-password"
-              className="text-green-300 font-sans text-1xl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Forgot Password?
-            </Link>
-            <button
-              type="submit"
-              className="bg-green-500 w-[160px] h-[80px] text-center text-black rounded-3xl hover:bg-green-400"
-              onClick={handleSubmit}
-            >
-              Sign In
-            </button>
-          </div>
-        </form>
-        <br />
-        <Link
-          to="/signup"
-          className="flex justify-center items-end text-blue-300 font-sans text-2xl"
-        >
-          Don't have an account? Sign Up
-        </Link>
+      {/* Bottom Quote Section */}
+      <div className="mt-12 text-center pb-8">
+        <p className="text-gray-400 italic text-lg">
+          "Continue your journey to financial success."
+        </p>
       </div>
     </div>
   );

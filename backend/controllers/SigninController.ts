@@ -15,7 +15,6 @@ const signin = async (
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      alert("User not found");
       res
         .status(400)
         .json({ message: "Invalid email or password. Please try again." });

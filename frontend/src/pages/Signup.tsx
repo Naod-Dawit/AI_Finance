@@ -50,7 +50,7 @@ export default function Signup() {
     console.log(errors);
     
 
-    return Object.keys(errors).length === 0; // Return true if no errors
+    return Object.keys(errors).length === 0; 
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -63,24 +63,20 @@ export default function Signup() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {error && <div className="text-red-600 text-sm mt-1">{error}</div>}
 
-      <div className="flex flex-wrap w-[1132px] h-[773.8px]   mx-auto mt-6 p-6 ">
-        {/* Welcome Block */}
-
-        <div className="w-[431.01px] h-[733.8px]   p-4 bg-custom-linear-bg text-[#00FF1E] rounded-3xl md:rounded-r-none text-[27.55px]">
-          <br />
-          <br />
-
-          <h1 className="">Welcome!</h1>
-          <br />
-          <br />
-          <p className="mt-2">
+      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        {/* Left Section: Welcome Content */}
+        <div className="flex flex-col space-y-6">
+          <h1 className="text-4xl font-extrabold text-blue-400">
+            Welcome!
+          </h1>
+          <p className="text-lg text-gray-300">
             We're excited to help you take control of your finances. Here's what
             you can do:
           </p>
-          <ul className="list-disc pl-6 mt-4 space-y-2">
+          <ul className="list-disc pl-6 space-y-4 text-gray-300">
             <li>
               Track Expenses: Keep a record of all your expenses, big or small.
             </li>
@@ -91,17 +87,17 @@ export default function Signup() {
           </ul>
         </div>
 
-        {/* Input Form Block */}
-        <div className="w-full md:w-1/2 p-4 bg-[#282626]  rounded-3xl md:rounded-l-none">
-          <h1 className="text-5xl text-center font-bold text-blue-500 ">
+        {/* Right Section: Sign Up Form */}
+        <div className="bg-gradient-to-b from-gray-800 to-gray-700 rounded-2xl shadow-2xl p-8">
+          <h2 className="text-3xl font-bold text-center text-blue-400 mb-8">
             Sign Up
-          </h1>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-y-[139px]">
-            <div className="flex flex-col gap-y-1">
+          </h2>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="block  font-medium text-[#C66363] text-3xl"
+                className="block text-sm font-medium text-gray-300"
               >
                 Email:
               </label>
@@ -111,18 +107,17 @@ export default function Signup() {
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-[#ffab2c] focus:border-[#3b82f6] p-2 bg-[#E3DADA] h-[60px] "
+                className="block w-full border border-gray-600 bg-gray-800 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out"
               />
               {formErrors.email && (
-                <div className="text-red-600 text-sm mt-1">
-                  {formErrors.email}
-                </div>
+                <div className="text-xs text-red-400">{formErrors.email}</div>
               )}
             </div>
-            <div className="flex flex-col gap-y-1">
+
+            <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="block  font-medium text-[#C66363] text-3xl"
+                className="block text-sm font-medium text-gray-300"
               >
                 Password:
               </label>
@@ -132,19 +127,17 @@ export default function Signup() {
                 type="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-[#ffab2c] focus:border-[#3b82f6]p-2 bg-[#E3DADA] h-[60px]"
+                className="block w-full border border-gray-600 bg-gray-800 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out"
               />
               {formErrors.password && (
-                <div className="text-red-600 text-sm">
-                  {formErrors.password}
-                </div>
+                <div className="text-xs text-red-400">{formErrors.password}</div>
               )}
             </div>
 
-            <div className="flex justify-between w-full items-center text-2xl">
+            <div className="flex justify-between items-center pt-4">
               <Link
                 to="/terms"
-                className="text-[#FFFFFF] font-sans text-1xl "
+                className="text-gray-300 text-sm hover:text-gray-100 transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -152,22 +145,29 @@ export default function Signup() {
               </Link>
               <button
                 type="submit"
-                className="bg-[#FFFFFF] w-[160px] h-[80px] text-center rounded-3xl "
-                
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200"
               >
                 {loading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </form>
-          <br />
-          <Link
-            to="/signin"
-            rel="noopener noreferrer"
-            className=" flex justify-center items-end text-[#2222ee] font-sans text-2xl"
-          >
-            Already have an account?
-          </Link>
+
+          <div className="mt-6 text-center">
+            <Link
+              to="/signin"
+              className="text-blue-400 text-sm hover:text-blue-300"
+            >
+              Already have an account?
+            </Link>
+          </div>
         </div>
+      </div>
+
+      {/* Bottom Quote Section */}
+      <div className="mt-12 text-center pb-8">
+        <p className="text-gray-400 italic text-lg">
+          "Take control of your financial future today."
+        </p>
       </div>
     </div>
   );

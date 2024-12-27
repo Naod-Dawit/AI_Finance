@@ -33,8 +33,6 @@ ChartJS.register(
 );
 import LoadingSpinner from "../assets/Loading";
 import ErrorBoundary from "../assets/ErrorBoundary";
-import { lineChartOptions, pieChartOptions } from "../utils/ChartConfigutation";
-import { getActiveExpenseData, getLineChartData } from "../utils/chartData";
 import Summary from "./sections/Summary";
 import PieChart from "./sections/piechart";
 import LineChart from "./sections/linechart";
@@ -177,16 +175,17 @@ export default function Homepage() {
 
   return (
     <>
+
       <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
-      />
+        />
       <ErrorBoundary>
         <Navbar />
         {loading ? (
           <LoadingSpinner />
-        ): (
+        ) : (
           <div className="container mx-auto p-8 space-y-12 bg-gray-700 text-gray-100">
             <div className="text-center space-y-2">
               <h1 className="text-2xl font-bold text-green-400">
@@ -200,7 +199,7 @@ export default function Homepage() {
                 data={data}
                 PreviousMonthData={PreviousMonthData}
                 previous={previous}
-              />
+                />
               {/* Pie Chart Section */}
               <PieChart
                 selectedMonth={selectedMonth}
@@ -209,7 +208,7 @@ export default function Homepage() {
                 current={current}
                 data={data}
                 OldExpenses={OldExpenses}
-              />
+                />
             </div>
             <LineChart expensePercentages={expensePercentages} />
           </div>

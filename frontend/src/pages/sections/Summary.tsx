@@ -18,6 +18,8 @@ type TransportationExpenses = {
 };
 
 type CustomExpense = {
+  date: any;
+
   name: string;
   amount: number;
   category: string;
@@ -273,6 +275,7 @@ export default function Summary({
             <h2 className="text-2xl font-bold mb-4">
               Detailed Expense Breakdown
             </h2>
+
             <BreakdownTable
               data={[
                 { category: "Housing", amount: safeNumber(data.Housing) },
@@ -284,6 +287,7 @@ export default function Summary({
                 ...(data.customExpenses || []).map((e: CustomExpense) => ({
                   category: e.name,
                   amount: e.amount,
+                  date: e.date ? new Date(e.date).toLocaleDateString() : "N/A",
                 })),
               ]}
             />
